@@ -1,4 +1,4 @@
-import { Typography, Box } from "@mui/material";
+import { Typography, Box, Card, CardContent } from "@mui/material";
 import { RoutesGraph } from "./components/RoutesGraph";
 import { ReactFlowProvider } from "@xyflow/react";
 import { useAppSelector } from "@store/hooks";
@@ -11,6 +11,8 @@ import { ActivityTimesChart } from "./components/ActivityTimesChart";
 import { OptimizedActivitiesTable } from "./components/OptimizedActivitiesTable";
 import { ActivityTimelineChart } from "./components/ActivityTimelineChart";
 import { PeriodTimesChart } from "./components/PeriodTimesChart";
+import { CostAnalysisSection } from "./components/CostAnalysisSection";
+import { CostAnalysisTable } from "./components/CostAnalysisTable";
 
 export function ReportsPanel() {
   const STATE = useAppSelector(GetStateHome);
@@ -84,28 +86,28 @@ export function ReportsPanel() {
       </Box>
 
       <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
+        {STATE.probability && (
+          <Typography variant="subtitle1">
+            La probabilidad de completar el proyecto en {STATE.expected_time}{" "}
+            unidades de tiempo es de {STATE.probability}%
+          </Typography>
+        )}
         {STATE.routes.length > 0 && (
           <Box>
             <Typography variant="h6">Lista de rutas</Typography>
             <RoutesList />
           </Box>
         )}
-        {STATE.table.length > 0 && (
-          <Box>
-            <Typography variant="h6">
-              Tabla de actividades con sus varianzas
-            </Typography>
-            <ActivitiesTable />
-            <Typography variant="subtitle1">
-              La probabilidad de completar el proyecto en {STATE.expected_time}{" "}
-              unidades de tiempo es de {STATE.probability}%
-            </Typography>
-          </Box>
-        )}
         {STATE.optimized_activities?.length > 0 && (
           <Box>
             <Typography variant="h6">Optimización de actividades</Typography>
             <OptimizedActivitiesTable />
+          </Box>
+        )}
+        {STATE.table.length > 0 && (
+          <Box>
+            <Typography variant="h6">Tabla de actividades</Typography>
+            <ActivitiesTable />
           </Box>
         )}
         {STATE.activity_times.length > 0 && (
@@ -126,6 +128,34 @@ export function ReportsPanel() {
               Rendimiento acumulado de tiempos
             </Typography>
             <PeriodTimesChart activityTimes={STATE.activity_times} />
+          </Box>
+        )}
+        {STATE.table.length > 0 && (
+          <Box>
+            <Card sx={{ margin: "auto", mt: 3, boxShadow: 2 }}>
+              <CardContent>
+                <Typography variant="h5" gutterBottom>
+                  Análisis de optimización
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{ whiteSpace: "pre-line", fontSize: 16, lineHeight: 1.5 }}
+                >
+                  {STATE.ai_analysis_pert}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Box>
+        )}
+        {STATE.cost_analysis.activities?.length > 0 && (
+          <Box>
+            <CostAnalysisTable activities={STATE.cost_analysis.activities} />
+          </Box>
+        )}
+        {STATE.cost_analysis?.budgeted_cost_at_time && (
+          <Box>
+            <Typography variant="h6">Análisis de costos</Typography>
+            <CostAnalysisSection {...STATE.cost_analysis} />
           </Box>
         )}
       </Box>

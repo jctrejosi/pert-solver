@@ -30,7 +30,8 @@ class Activity:
             'name': self.name,
             'precedents': self.precedents,
             'average_time': self.average_time,
-            'variance': self.variance
+            'variance': self.variance,
+            'cost': self.cost
         }
 
     def __repr__(self):
@@ -140,54 +141,71 @@ class PERTCalculator:
             } for activity in self.activities
         ]
 
-    def optimize_critical_path(self):
-        # Filtrar rutas críticas
-        critical_routes = [route for route in self.routes_with_times if route["critical"]]
-
-        if not critical_routes:
-            return {"optimized_activities": [], "total_acceleration_cost": 0}
-
-        # Identificar actividades únicas en rutas críticas
-        critical_activities = set()
-        for route in critical_routes:
-            critical_activities.update(route["route"])
-
-        # Filtrar actividades críticas con aceleración disponible
-        activities_to_accelerate = [
-            self.activity_dict[name] for name in critical_activities
-            if self.activity_dict[name].acceleration and self.activity_dict[name].acceleration_cost
-        ]
-
-        # Ordenar actividades por menor costo de aceleración por unidad de tiempo
-        activities_to_accelerate.sort(key=lambda act: act.acceleration_cost)
-
-        total_reduction_needed = self.get_project_duration() - self.expected_time
+    def optimize_until_expected(self):
+        """
+        Optimiza iterativamente la red PERT acelerando actividades de la ruta crítica (slack = 0),
+        recalculando la red en cada iteración, hasta que la duración total del proyecto sea
+        menor o igual al tiempo esperado o no se pueda acelerar más.
+        """
         total_acceleration_cost = 0
         optimized_activities = []
+        iteration = 0
+        max_iterations = 50  # Para evitar loops infinitos
 
-        for activity in activities_to_accelerate:
-            if total_reduction_needed <= 0:
-                break  # Ya se alcanzó la meta de reducción de tiempo
+        # Se asume que self.calculate_pert() ya fue llamado una vez antes
+        while self.get_project_duration() > self.expected_time and iteration < max_iterations:
+            iteration += 1
 
-            # Determinar cuánto tiempo se puede reducir en esta actividad
-            max_reducible = round(min(activity.acceleration, total_reduction_needed), 2)
-            if(max_reducible != 0):
-                reduction_cost = round(max_reducible * activity.acceleration_cost, 2)
+            # Recalcular la red PERT (forward, backward, slack, ruta crítica)
+            self.calculate_pert()
+            current_duration = self.get_project_duration()
+            reduction_needed = round(current_duration - self.expected_time, 2)
+            if reduction_needed <= 0:
+                break
 
-                # Registrar optimización aplicada
-                optimized_activities.append({
-                    "activity": activity.name,
-                    "time_reduced": max_reducible,
-                    "acceleration_cost_per_unit": activity.acceleration_cost,
-                    "total_acceleration_cost": reduction_cost
-                })
+            # Seleccionar solo actividades verdaderamente críticas: slack == 0 y que puedan acelerarse
+            critical_activities = [
+                act for act in self.activities
+                if self.slack[act.name] == 0 and act.acceleration and act.acceleration_cost
+            ]
+            if not critical_activities:
+                # No se pueden acelerar más
+                break
 
-                # Actualizar valores
-                total_reduction_needed -= max_reducible
-                total_acceleration_cost += reduction_cost
+            # Seleccionar la actividad con menor costo de aceleración por unidad
+            candidate = min(critical_activities, key=lambda act: act.acceleration_cost)
+            # Cuánto se puede reducir en esta actividad (no más de lo permitido por su capacidad y lo que se necesita)
+            reduction = round(min(candidate.acceleration, reduction_needed), 2)
+            if reduction <= 0:
+                break
+
+            cost = round(reduction * candidate.acceleration_cost, 2)
+            total_acceleration_cost += cost
+            optimized_activities.append({
+                "activity": candidate.name,
+                "time_reduced": reduction,
+                "acceleration_cost_per_unit": candidate.acceleration_cost,
+                "total_acceleration_cost": cost
+            })
+
+            # Aplicar la aceleración: reducimos el tiempo (por ejemplo, disminuyendo optimist, probable y pessimist)
+            # Esto asume que la aceleración reduce todos los tiempos de la actividad
+            candidate.probable = candidate.probable - reduction
+            if candidate.optimist is not None:
+                candidate.optimist = candidate.optimist - reduction
+            if candidate.pessimist is not None:
+                candidate.pessimist = candidate.pessimist - reduction
+
+            # Reducir la capacidad de aceleración disponible para la actividad
+            candidate.acceleration = round(candidate.acceleration - reduction, 2)
+            # Recalcular el tiempo promedio de la actividad
+            candidate.average_time = candidate.calculate_average_time()
+
+        # Recalcular la red final
+        self.calculate_pert()
 
         return {
             "activities": optimized_activities,
-            "total_acceleration_cost": total_acceleration_cost
+            "total_acceleration_cost": total_acceleration_cost,
+            "final_project_duration": self.get_project_duration()
         }
-

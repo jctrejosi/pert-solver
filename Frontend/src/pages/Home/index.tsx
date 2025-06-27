@@ -2,6 +2,7 @@ import { Container, Grid2 } from "@mui/material";
 import { Navbar } from "@layouts/Navbar";
 import { ReportsPanel } from "./modules/ReportsPanel";
 import { ActivityManager } from "./modules/ActivityManager";
+import { GenerateInformModal } from "./modules/GenerateInformModal";
 
 export function Home() {
   return (
@@ -35,6 +36,7 @@ export function Home() {
           },
         }}
       >
+        <GenerateInformModal />
         <ReportsPanel />
       </Container>
     </Grid2>

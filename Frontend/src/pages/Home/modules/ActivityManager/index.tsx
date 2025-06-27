@@ -45,6 +45,10 @@ export function ActivityManager() {
     );
   };
 
+  const handleGenerateInform = () => {
+    disptach(ActionsHome.SetShowInform(true));
+  };
+
   const handleChangeExpectedTime = (e: React.ChangeEvent<HTMLInputElement>) =>
     disptach(ActionsHome.SetExpectedTime(Number(e.target.value)));
 
@@ -59,6 +63,16 @@ export function ActivityManager() {
         style={{ marginBottom: "1rem" }}
       >
         CALCULAR PERT
+      </Button>
+      <Button
+        variant="contained"
+        color="success"
+        onClick={handleGenerateInform}
+        endIcon={<SendIcon />}
+        fullWidth
+        style={{ marginBottom: "1rem" }}
+      >
+        GENERAR INFORME
       </Button>
       <TextField
         label="Tiempo esperado"

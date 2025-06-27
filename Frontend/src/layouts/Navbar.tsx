@@ -5,8 +5,8 @@ export const Navbar = () => {
     <AppBar
       position="static"
       sx={{
-        padding: "1.5rem",
-        height: "4rem",
+        padding: "1.5rem ",
+        height: "2rem",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
