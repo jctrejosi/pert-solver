@@ -10,6 +10,8 @@ export const Navbar = () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        backgroundColor: "#1e1e1e",
+        color: "#fff",
       }}
     >
       <Typography variant="h6" sx={{ display: "flex", alignItems: "center" }}>
