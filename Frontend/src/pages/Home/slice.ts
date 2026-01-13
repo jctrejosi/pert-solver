@@ -16,7 +16,7 @@ const initialState = {
   activities: exampleActivities as Activity[],
   table: [] as TableVariance[],
   routes: [] as Route[],
-  expected_time: 33,
+  expected_time: 16.5,
   activity_times: [] as AcitvityTimes[],
   probability: null as number | null,
   optimized_activities: [] as OptimizedActivitiesT[],

@@ -4,9 +4,6 @@
             "sha256": "eacfa1e93c5e1fc3b2831f3d3b1290f396f85475bd3e56bf69f245e837afa702"
         },
         "pipfile-spec": 6,
-        "requires": {
-            "python_version": "3.11"
-        },
         "sources": [
             {
                 "name": "pypi",

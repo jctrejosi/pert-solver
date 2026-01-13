@@ -1,7 +1,23 @@
+import os
+import requests
 from flask import Blueprint, jsonify, request
 from .models import PERTCalculator, Activity
-import openai
-from dotenv import load_dotenv
+
+OLLAMA_URL = os.getenv("OLLAMA_URL")
+
+def ask_llm(prompt: str) -> str:
+    r = requests.post(
+        f"{OLLAMA_URL}/api/generate",
+        json={
+            "model": "qwen2.5:3b",
+            "prompt": prompt,
+            "temperature": 0.2,
+            "num_ctx": 4096,
+            "stream": False
+        },
+    )
+    r.raise_for_status()
+    return r.json()["response"]
 
 bp = Blueprint('main', __name__)
 
@@ -51,16 +67,8 @@ def calculate_pert_route():
         """
 
         # Llamar a la API de OpenAI
-        client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-        response_ai = client.chat.completions.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "Eres un experto en gestión de proyectos y costos."},
-                {"role": "user", "content": prompt}
-            ]
-        )
 
-        ai_analysis = response_ai.choices[0].message.content
+        ai_analysis = ask_llm(prompt)
 
         response = {
             'routes': routes,

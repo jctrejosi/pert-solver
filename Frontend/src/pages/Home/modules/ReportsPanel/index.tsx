@@ -152,7 +152,7 @@ export function ReportsPanel() {
             <CostAnalysisTable activities={STATE.cost_analysis.activities} />
           </Box>
         )}
-        {STATE.cost_analysis?.budgeted_cost_at_time && (
+        {STATE.cost_analysis.activities?.length > 0 && (
           <Box>
             <Typography variant="h6">Análisis de costos</Typography>
             <CostAnalysisSection {...STATE.cost_analysis} />

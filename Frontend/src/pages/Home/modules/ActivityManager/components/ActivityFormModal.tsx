@@ -13,6 +13,7 @@ import {
   MenuItem,
   ListItemText,
   OutlinedInput,
+  Chip,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
@@ -247,14 +248,17 @@ export const ActivityFormModal = ({
                     Dependencias
                   </InputLabel>
                   <Select<string[]>
-                    size="medium"
                     multiple
-                    id="demo-simple-select"
                     value={valueSelect || []}
-                    labelId="demo-simple-select-label"
-                    label="Dependencias"
-                    input={<OutlinedInput label="Name" />}
                     onChange={handleChangeDependencie}
+                    input={<OutlinedInput label="Dependencias" />}
+                    renderValue={(selected) => (
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                        {selected.map((value) => (
+                          <Chip key={value} label={value} />
+                        ))}
+                      </Box>
+                    )}
                   >
                     {predecessorActivities.map((name) => (
                       <MenuItem key={name} value={name}>
