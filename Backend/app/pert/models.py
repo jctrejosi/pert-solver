@@ -180,19 +180,29 @@ class PERTCalculator:
 
     def calculate_completion_probability(self):
         min_completion_time = self.get_project_duration()
-        variance_total = round(sum(self.activity_dict[activity].calculate_variance() for activity in self.critical_path),2)
+        variance_total = round(
+            sum(self.activity_dict[a].calculate_variance() for a in self.critical_path),
+            2
+        )
         std_dev_total = math.sqrt(variance_total)
-        Z = (self.expected_time - min_completion_time) / std_dev_total
-        probability = norm.cdf(Z)
-        self.probability = probability
+
         if std_dev_total == 0:
-            return {
-                "varianza total": variance_total,
-                "min_completion_time": min_completion_time,
-                "Z_score": Z,
-                "completion_probability": round(probability * 100, 2),
-                "critical_path": self.critical_path
-            }
+            Z = None
+            probability = 1.0 if min_completion_time <= self.expected_time else 0.0
+        else:
+            Z = (self.expected_time - min_completion_time) / std_dev_total
+            probability = norm.cdf(Z)
+
+        self.probability = probability
+
+        return {
+            "varianza_total": variance_total,
+            "min_completion_time": min_completion_time,
+            "Z_score": Z,
+            "completion_probability": round(probability * 100, 2),
+            "critical_path": self.critical_path
+        }
+
 
     def get_activity_times(self):
         return [

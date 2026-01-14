@@ -22,5 +22,6 @@ pandas = "*"
 flask-cors = "*"
 scipy = "*"
 python-dotenv = "*"
+gunicorn = "*"
 
 [dev-packages]

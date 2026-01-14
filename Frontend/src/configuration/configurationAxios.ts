@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const getBaseUrl = () => `http://127.0.0.1:5000`;
+export const getBaseUrl = () => import.meta.env.VITE_API_BASE_URL;
 
 export const axiosConfiguration = () => {
   axios.defaults.baseURL = getBaseUrl();
