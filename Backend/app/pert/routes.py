@@ -3,12 +3,11 @@ import requests
 from flask import Blueprint, jsonify, request
 from .models import PERTCalculator, Activity
 
-OLLAMA_URL = os.getenv("OLLAMA_URL")
-
 def ask_llm(prompt: str) -> str:
     ollama_url = os.getenv("OLLAMA_URL")
     if not ollama_url:
-        raise RuntimeError("La variable de entorno OLLAMA_URL no está definida.")
+        # Fallback seguro si la URL no está definida
+        return "Servicio de IA no configurado"
 
     try:
         r = requests.post(
@@ -22,8 +21,8 @@ def ask_llm(prompt: str) -> str:
             },
         )
         r.raise_for_status()
-        return r.json()["response"]
-    except requests.RequestException as e:
+        return r.json().get("response", "Respuesta vacía de IA")
+    except requests.RequestException:
         return "No se pudo generar respuesta de IA"
 
 bp = Blueprint('main', __name__)
