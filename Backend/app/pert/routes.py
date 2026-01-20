@@ -6,18 +6,25 @@ from .models import PERTCalculator, Activity
 OLLAMA_URL = os.getenv("OLLAMA_URL")
 
 def ask_llm(prompt: str) -> str:
-    r = requests.post(
-        f"{OLLAMA_URL}/api/generate",
-        json={
-            "model": "qwen2.5:3b",
-            "prompt": prompt,
-            "temperature": 0.2,
-            "num_ctx": 4096,
-            "stream": False
-        },
-    )
-    r.raise_for_status()
-    return r.json()["response"]
+    ollama_url = os.getenv("OLLAMA_URL")
+    if not ollama_url:
+        raise RuntimeError("La variable de entorno OLLAMA_URL no está definida.")
+
+    try:
+        r = requests.post(
+            f"{ollama_url}/api/generate",
+            json={
+                "model": "qwen2.5:3b",
+                "prompt": prompt,
+                "temperature": 0.2,
+                "num_ctx": 4096,
+                "stream": False
+            },
+        )
+        r.raise_for_status()
+        return r.json()["response"]
+    except requests.RequestException as e:
+        return "No se pudo generar respuesta de IA"
 
 bp = Blueprint('main', __name__)
 
