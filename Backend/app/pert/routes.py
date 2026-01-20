@@ -66,9 +66,10 @@ def calculate_pert_route():
         Conclusión y recomendaciones: Sugiere estrategias para mejorar la gestión del proyecto, reducir costos y minimizar riesgos.
         """
 
-        # Llamar a la API de OpenAI
-
-        ai_analysis = ask_llm(prompt)
+        try:
+            ai_analysis = ask_llm(prompt)
+        except Exception:
+            ai_analysis = "No se pudo generar respuesta de IA"
 
         response = {
             'routes': routes,
