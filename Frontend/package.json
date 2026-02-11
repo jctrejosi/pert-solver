@@ -16,7 +16,7 @@
     "@mui/material": "6.4.3",
     "@reduxjs/toolkit": "2.5.1",
     "@xyflow/react": "12.4.2",
-    "axios": "1.7.9",
+    "axios": "1.13.5",
     "dagre": "0.8.5",
     "react": "19.0.0",
     "react-dom": "19.0.0",
